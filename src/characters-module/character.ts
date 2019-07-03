@@ -8,14 +8,13 @@ export abstract class Character {
     protected lifePoints: number;
 
     protected constructor(nom: string){
-        console.log('Hi there, i am the parent constructor');
         this.nom = nom;
     }
 
     public getNom(): string {
         return this.nom;
     }
-    
+
     public setStrength(strength: number): Character {
         this.strength = strength;
         

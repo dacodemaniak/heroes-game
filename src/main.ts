@@ -35,19 +35,19 @@ class Main {
             .setLifePoints(100)
             .setStrength(100);
         
-        console.log(superman.toString());
-        
 
         const lexLuthor: Bad = new Bad('Lex Luthor');
         lexLuthor
             .setLifePoints(150)
             .setStrength(200);
-        console.log(lexLuthor.toString());
+    
+        const batman: Hero = new Hero('Batman');
 
         // Initiate a meet
         const meet: Meet = new Meet(superman, lexLuthor);
-
+        
         const joker: Bad = new Bad('Joker');
+        joker.setLifePoints(150).setStrength(200);
 
     }
 }

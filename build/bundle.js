@@ -102,6 +102,12 @@ class Bad extends _character__WEBPACK_IMPORTED_MODULE_0__["Character"] {
     constructor(nom) {
         super(nom);
     }
+    toString() {
+        return `I'm a bad, my name is ${this.nom}
+            I have ${this.lifePoints} life points
+            and ${this.strength} points of strength.
+        `;
+    }
 }
 
 
@@ -121,7 +127,6 @@ __webpack_require__.r(__webpack_exports__);
 
 class Character {
     constructor(nom) {
-        console.log('Hi there, i am the parent constructor');
         this.nom = nom;
     }
     getNom() {
@@ -166,18 +171,33 @@ class Character {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Hero", function() { return Hero; });
 /* harmony import */ var _character__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./character */ "./src/characters-module/character.ts");
+/* harmony import */ var _core_constants__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./../core/constants */ "./src/core/constants.ts");
+
 
 class Hero extends _character__WEBPACK_IMPORTED_MODULE_0__["Character"] {
     constructor(nom) {
-        console.log('Hello, i am the hero constructor');
         super(nom);
     }
     escape() {
-        if (this.strength <= 25) {
+        if (this.strength <= _core_constants__WEBPACK_IMPORTED_MODULE_1__["Constants"].STRENGTHLOSTVALUE) {
             this.strength = 0;
             return;
         }
-        this.strength = this.strength - 25;
+        this.strength = this.strength - _core_constants__WEBPACK_IMPORTED_MODULE_1__["Constants"].STRENGTHLOSTVALUE;
+    }
+    winFight(bad) {
+        this.strength = this.strength + Math.ceil(bad.getStrength() * 0.1);
+        bad.setStrength(bad.getStrength() - Math.ceil(bad.getStrength() * 0.1));
+    }
+    lostFight(bad) {
+        bad.setStrength(bad.getStrength() + Math.ceil(this.strength * 0.1));
+        this.strength = this.strength - Math.ceil(this.strength * .1);
+    }
+    toString() {
+        return `I'm a Hero, my name is ${this.nom}
+            I have ${this.lifePoints} life points
+            and ${this.strength} points of strength.
+        `;
     }
 }
 
@@ -198,9 +218,73 @@ class Meet {
     constructor(hero, bad) {
         this.hero = hero;
         this.bad = bad;
+        this._jouer();
+    }
+    _jouer() {
         console.log(this.hero.getNom(), ' rencontre ', this.bad.getNom());
+        // Une petite valeur aléatoire comprise entre 0 et 2
+        let diceDrop = Math.floor(Math.random() * 3);
+        let gameEnd;
+        switch (diceDrop) {
+            case 0:
+                this._escapeFight();
+                gameEnd = `${this.hero.getNom()} s'échappe`;
+                break;
+            case 1:
+                this._winFight();
+                gameEnd = `${this.hero.getNom()} gagne`;
+                break;
+            case 2:
+                this._lostFight();
+                gameEnd = `${this.hero.getNom()} perd`;
+                break;
+        }
+        if (diceDrop === 0) {
+            gameEnd = gameEnd + ' ' + this.hero.toString();
+        }
+        else {
+            gameEnd = gameEnd +
+                ' ' + this.hero.toString() + '\n' + this.bad.toString();
+        }
+        setTimeout(() => {
+            console.log(gameEnd);
+        }, 3000);
+    }
+    _escapeFight() {
+        this.hero.escape();
+    }
+    _winFight() {
+        // If the hero wins...
+        this.hero.winFight(this.bad);
+    }
+    _lostFight() {
+        // If the hero losts...
+        this.hero.lostFight(this.bad);
     }
 }
+
+
+/***/ }),
+
+/***/ "./src/core/constants.ts":
+/*!*******************************!*\
+  !*** ./src/core/constants.ts ***!
+  \*******************************/
+/*! exports provided: Constants */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Constants", function() { return Constants; });
+class Constants {
+    static get STRENGTHLOSTVALUE() {
+        return Constants._strengthLostValue;
+    }
+    static getStrengthLostValue() {
+        return Constants._strengthLostValue;
+    }
+}
+Constants._strengthLostValue = 25;
 
 
 /***/ }),
@@ -247,15 +331,15 @@ class Main {
         superman
             .setLifePoints(100)
             .setStrength(100);
-        console.log(superman.toString());
         const lexLuthor = new _characters_module_bad__WEBPACK_IMPORTED_MODULE_2__["Bad"]('Lex Luthor');
         lexLuthor
             .setLifePoints(150)
             .setStrength(200);
-        console.log(lexLuthor.toString());
+        const batman = new _characters_module_hero__WEBPACK_IMPORTED_MODULE_1__["Hero"]('Batman');
         // Initiate a meet
         const meet = new _characters_module_meet__WEBPACK_IMPORTED_MODULE_3__["Meet"](superman, lexLuthor);
         const joker = new _characters_module_bad__WEBPACK_IMPORTED_MODULE_2__["Bad"]('Joker');
+        joker.setLifePoints(150).setStrength(200);
     }
 }
 const app = new Main();
