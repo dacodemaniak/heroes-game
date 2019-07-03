@@ -9,6 +9,12 @@
 import { Hero } from './characters-module/hero';
 import { Bad } from './characters-module/bad';
 import { Meet } from './characters-module/meet';
+import { CharacterFactory } from './core/character-factory';
+import { Character } from './characters-module/character';
+import { Speech } from './core/speech';
+import { ConsoleOutputStrategy } from './core/strategy/console-output-strategy';
+import { HtmlOutputStrategy } from './core/strategy/html-output-strategy';
+import { SpeechOutputStrategy } from './core/strategy/speech-output-strategy';
 
 class Main {
     public run(): void {
@@ -30,27 +36,37 @@ class Main {
     }
 
     public game(): void {
-        const superman: Hero = new Hero('Superman');
-        superman
-            .setLifePoints(100)
-            .setStrength(100);
         
+        const superman: Hero = <Hero> CharacterFactory.createCharacter('superman');
 
-        const lexLuthor: Bad = new Bad('Lex Luthor');
+        CharacterFactory.type = 'Bad';
+        const lexLuthor: Bad = <Bad> CharacterFactory.createWithStrength('Lex Luthor', 100);
+        const joker: Bad = <Bad> CharacterFactory.createFullCharacter(
+            'Joker',
+            100,
+            200
+        );
         lexLuthor
-            .setLifePoints(150)
-            .setStrength(200);
+            .setLifePoints(150);
     
         const batman: Hero = new Hero('Batman');
 
         // Initiate a meet
-        const meet: Meet = new Meet(superman, lexLuthor);
-        
-        const joker: Bad = new Bad('Joker');
-        joker.setLifePoints(150).setStrength(200);
+        const meet: Meet = new Meet(
+            superman, 
+            lexLuthor, 
+            new SpeechOutputStrategy()
+        );
 
     }
 }
 
 const app = new Main();
-app.game();
+let button: any = document.getElementById('fight');
+
+button.addEventListener(
+    'click', 
+    () => {
+        app.game();
+    }
+);

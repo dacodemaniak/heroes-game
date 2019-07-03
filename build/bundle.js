@@ -215,7 +215,8 @@ class Hero extends _character__WEBPACK_IMPORTED_MODULE_0__["Character"] {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Meet", function() { return Meet; });
 class Meet {
-    constructor(hero, bad) {
+    constructor(hero, bad, strategy) {
+        this.outputStrategy = strategy;
         this.hero = hero;
         this.bad = bad;
         this._jouer();
@@ -238,7 +239,12 @@ class Meet {
                 this._lostFight();
                 gameEnd = `${this.hero.getNom()} perd`;
                 break;
+            default:
+                this._winFight();
+                gameEnd = `${this.hero.getNom()} gagne`;
+                break;
         }
+        console.log('Lancer de dé : ' + diceDrop);
         if (diceDrop === 0) {
             gameEnd = gameEnd + ' ' + this.hero.toString();
         }
@@ -246,9 +252,8 @@ class Meet {
             gameEnd = gameEnd +
                 ' ' + this.hero.toString() + '\n' + this.bad.toString();
         }
-        setTimeout(() => {
-            console.log(gameEnd);
-        }, 3000);
+        // Utiliser la stratégie pour la sortie
+        this.outputStrategy.output(gameEnd);
     }
     _escapeFight() {
         this.hero.escape();
@@ -262,6 +267,45 @@ class Meet {
         this.hero.lostFight(this.bad);
     }
 }
+
+
+/***/ }),
+
+/***/ "./src/core/character-factory.ts":
+/*!***************************************!*\
+  !*** ./src/core/character-factory.ts ***!
+  \***************************************/
+/*! exports provided: CharacterFactory */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CharacterFactory", function() { return CharacterFactory; });
+/* harmony import */ var _characters_module_hero__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./../characters-module/hero */ "./src/characters-module/hero.ts");
+/* harmony import */ var _characters_module_bad__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./../characters-module/bad */ "./src/characters-module/bad.ts");
+
+
+class CharacterFactory {
+    static createCharacter(nom) {
+        if (CharacterFactory.type == 'Hero') {
+            return new _characters_module_hero__WEBPACK_IMPORTED_MODULE_0__["Hero"](nom).setLifePoints(100).setStrength(100);
+        }
+        return new _characters_module_bad__WEBPACK_IMPORTED_MODULE_1__["Bad"](nom).setLifePoints(100).setStrength(100);
+    }
+    static createWithStrength(nom, strength) {
+        const character = CharacterFactory.createCharacter(nom);
+        character.setStrength(strength);
+        return character;
+    }
+    static createFullCharacter(nom, strength, lifePoints) {
+        const character = CharacterFactory.createCharacter(nom);
+        character
+            .setStrength(strength)
+            .setLifePoints(lifePoints);
+        return character;
+    }
+}
+CharacterFactory.type = 'Hero';
 
 
 /***/ }),
@@ -289,6 +333,65 @@ Constants._strengthLostValue = 25;
 
 /***/ }),
 
+/***/ "./src/core/speech.ts":
+/*!****************************!*\
+  !*** ./src/core/speech.ts ***!
+  \****************************/
+/*! exports provided: Speech */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Speech", function() { return Speech; });
+class Speech {
+    constructor() {
+        this.synthesis = window.speechSynthesis;
+    }
+    speech(message) {
+        if ('speechSynthesis' in window) {
+            let synthese = new SpeechSynthesisUtterance();
+            var voices = this.synthesis.getVoices();
+            synthese.voice = voices[0];
+            console.log(JSON.stringify(voices));
+            synthese.voiceURI = 'native';
+            synthese.pitch = 50;
+            synthese.volume = 1;
+            synthese.rate = .8;
+            synthese.lang = 'en-EN';
+            synthese.text = message;
+            this.synthesis.speak(synthese);
+        }
+        else {
+            console.error('Well, i\'m not able to speak!');
+        }
+    }
+}
+
+
+/***/ }),
+
+/***/ "./src/core/strategy/speech-output-strategy.ts":
+/*!*****************************************************!*\
+  !*** ./src/core/strategy/speech-output-strategy.ts ***!
+  \*****************************************************/
+/*! exports provided: SpeechOutputStrategy */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SpeechOutputStrategy", function() { return SpeechOutputStrategy; });
+/* harmony import */ var _speech__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../speech */ "./src/core/speech.ts");
+
+class SpeechOutputStrategy {
+    output(message) {
+        let speech = new _speech__WEBPACK_IMPORTED_MODULE_0__["Speech"]();
+        speech.speech(message);
+    }
+}
+
+
+/***/ }),
+
 /***/ "./src/main.ts":
 /*!*********************!*\
   !*** ./src/main.ts ***!
@@ -300,14 +403,16 @@ Constants._strengthLostValue = 25;
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _person__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./person */ "./src/person.ts");
 /* harmony import */ var _characters_module_hero__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./characters-module/hero */ "./src/characters-module/hero.ts");
-/* harmony import */ var _characters_module_bad__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./characters-module/bad */ "./src/characters-module/bad.ts");
-/* harmony import */ var _characters_module_meet__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./characters-module/meet */ "./src/characters-module/meet.ts");
+/* harmony import */ var _characters_module_meet__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./characters-module/meet */ "./src/characters-module/meet.ts");
+/* harmony import */ var _core_character_factory__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./core/character-factory */ "./src/core/character-factory.ts");
+/* harmony import */ var _core_strategy_speech_output_strategy__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./core/strategy/speech-output-strategy */ "./src/core/strategy/speech-output-strategy.ts");
 /**
  * @name Main
  * @abstract C'est ici le monde extérieur
  * @author Aélion
  * @version 1.0.0
  */
+
 
 
 
@@ -327,23 +432,22 @@ class Main {
         console.log('Hola ' + batman.forname + '(' + batman.getAge() + ')');
     }
     game() {
-        const superman = new _characters_module_hero__WEBPACK_IMPORTED_MODULE_1__["Hero"]('Superman');
-        superman
-            .setLifePoints(100)
-            .setStrength(100);
-        const lexLuthor = new _characters_module_bad__WEBPACK_IMPORTED_MODULE_2__["Bad"]('Lex Luthor');
+        const superman = _core_character_factory__WEBPACK_IMPORTED_MODULE_3__["CharacterFactory"].createCharacter('superman');
+        _core_character_factory__WEBPACK_IMPORTED_MODULE_3__["CharacterFactory"].type = 'Bad';
+        const lexLuthor = _core_character_factory__WEBPACK_IMPORTED_MODULE_3__["CharacterFactory"].createWithStrength('Lex Luthor', 100);
+        const joker = _core_character_factory__WEBPACK_IMPORTED_MODULE_3__["CharacterFactory"].createFullCharacter('Joker', 100, 200);
         lexLuthor
-            .setLifePoints(150)
-            .setStrength(200);
+            .setLifePoints(150);
         const batman = new _characters_module_hero__WEBPACK_IMPORTED_MODULE_1__["Hero"]('Batman');
         // Initiate a meet
-        const meet = new _characters_module_meet__WEBPACK_IMPORTED_MODULE_3__["Meet"](superman, lexLuthor);
-        const joker = new _characters_module_bad__WEBPACK_IMPORTED_MODULE_2__["Bad"]('Joker');
-        joker.setLifePoints(150).setStrength(200);
+        const meet = new _characters_module_meet__WEBPACK_IMPORTED_MODULE_2__["Meet"](superman, lexLuthor, new _core_strategy_speech_output_strategy__WEBPACK_IMPORTED_MODULE_4__["SpeechOutputStrategy"]());
     }
 }
 const app = new Main();
-app.game();
+let button = document.getElementById('fight');
+button.addEventListener('click', () => {
+    app.game();
+});
 
 
 /***/ }),

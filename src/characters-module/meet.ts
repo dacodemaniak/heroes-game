@@ -1,13 +1,17 @@
 import { Hero } from "./hero";
 import { Bad } from "./bad";
+import { OutputStrategy } from "src/core/strategy/output-strategy-interface";
 
 export class Meet {
     private hero: Hero;
 
     private bad: Bad;
 
-    public constructor(hero: Hero, bad: Bad) {
+    private outputStrategy: OutputStrategy;
+
+    public constructor(hero: Hero, bad: Bad, strategy: OutputStrategy) {
         
+        this.outputStrategy = strategy;
 
         this.hero = hero;
 
@@ -40,7 +44,14 @@ export class Meet {
                 this._lostFight();
                 gameEnd = `${this.hero.getNom()} perd`;
             break;
+
+            default:
+                this._winFight();
+                gameEnd = `${this.hero.getNom()} gagne`;
+            break;
         }
+        console.log('Lancer de dé : ' + diceDrop);
+
         if (diceDrop === 0) {
             gameEnd = gameEnd + ' ' + this.hero.toString();
         } else {
@@ -48,10 +59,8 @@ export class Meet {
                 ' ' + this.hero.toString() + '\n' + this.bad.toString();
         }
 
-        setTimeout(() => {
-            console.log(gameEnd);
-        }, 3000);
-        
+        // Utiliser la stratégie pour la sortie
+        this.outputStrategy.output(gameEnd);
     }
 
     private _escapeFight(): void {

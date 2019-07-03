@@ -30,6 +30,7 @@ export class Hero extends Character {
         
         this.strength = this.strength - Math.ceil(this.strength * .1);
     }
+    
     public toString(): string {
         return `I'm a Hero, my name is ${this.nom}
             I have ${this.lifePoints} life points
